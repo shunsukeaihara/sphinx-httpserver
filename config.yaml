@@ -1,0 +1,7 @@
+development:
+    ja:
+        hmm: "path_to_hmm"
+        dic: "path_to_dic"
+        kws: "path_to_kws"
+        kws_threshold: "1e-60"
+        kws_plp: "1e-60"
