@@ -1,7 +1,10 @@
 package sphinx
 
 import (
+	"errors"
+	"math/rand"
 	"sync"
+	"time"
 
 	ps "github.com/shunsukeaihara/go-pocketsphinx"
 	"golang.org/x/net/context"
@@ -43,6 +46,11 @@ func FromContext(ctx context.Context) (Sphinx, bool) {
 }
 
 func (t Sphinx) GetSphinxFromLanguage(lang string) (*PsInstance, error) {
-
-	return nil, nil
+	instances, ok := t[lang]
+	if ok && len(instances) > 0 {
+		rand.Seed(time.Now().UnixNano())
+		i := rand.Intn(len(instances))
+		return instances[i], nil
+	}
+	return nil, errors.New("NotFound")
 }
