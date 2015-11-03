@@ -36,6 +36,14 @@ func NewSphinx(cfgMap map[string]ps.Config, cpunum int) Sphinx {
 	return ret
 }
 
+func (p *PsInstance) Lock() {
+	p.mu.Lock()
+}
+
+func (p *PsInstance) Unlock() {
+	p.mu.Unlock()
+}
+
 func NewContext(ctx context.Context, sp Sphinx) context.Context {
 	return context.WithValue(ctx, psKey, sp)
 }

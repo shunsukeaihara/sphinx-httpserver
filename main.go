@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"flag"
 	"io/ioutil"
+	"os"
 	"runtime"
 
-	"github.com/golang/glog"
+	log "github.com/Sirupsen/logrus"
 	"github.com/guregu/kami"
-	"github.com/zenazn/goji/graceful"
 	"golang.org/x/net/context"
 
 	"github.com/shunsukeaihara/sphinx-httpserver/config"
@@ -25,22 +25,27 @@ func main() {
 	flag.Parse()
 	cpus := runtime.NumCPU()
 	runtime.GOMAXPROCS(cpus)
-	glog.Infoln("Starting server...")
+
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stderr)
+	if *env == "production" {
+		log.SetLevel(log.WarnLevel)
+	} else {
+		log.SetLevel(log.DebugLevel)
+	}
+	log.Infoln("Starting server...")
 
 	// load config
 	d, err := ioutil.ReadFile(*configFile)
 	if err != nil {
-		glog.Fatalln("[ERROR] read config.yml", err)
+		log.Fatalln("[ERROR] read config.yml", err)
 	}
 
 	cfg, err := config.Load(bytes.NewReader(d), *env)
 	if err != nil {
-		glog.Fatalln("[ERROR] config Load", err)
+		log.Fatalln("[ERROR] config Load", err)
 	}
 	psAll := sphinx.NewSphinx(cfg.PSConfig, cpus)
-	graceful.PostHook(func() {
-		glog.Flush()
-	})
 
 	ctx := context.Background()
 	ctx = sphinx.NewContext(ctx, psAll)
